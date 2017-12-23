@@ -6,7 +6,7 @@ Se utiliza para medir su rendimiento y compararlo con v1, en la entrada del blog
 
 ## Cómo usarlo ##
 
-Al servicio un proyecto Maven, solo es necesario la ejecución del POM, que genera un jar.
+- Al servicio un proyecto Maven, solo es necesario la ejecución del POM, que genera un jar.
 
 - El fichero de propiedades debe modificarse para proporcionar los parámetros de conexión y situarlo en el directorio /src/main/resources.
 

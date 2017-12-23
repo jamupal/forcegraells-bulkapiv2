@@ -38,19 +38,18 @@ import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+
 public class Bulkapiv2Application {
 
     private static final Logger log = LoggerFactory.getLogger(Bulkapiv2Application.class);
 
-    //Miembros de la clase, para albergar las propiedades, el token de conexión, la url real y sobretodo
-    //el identificador de Job que se obtendrá al crearlo y que es necesario en todas las peticiones
     private static Properties prop = new Properties();
     private static String token = null;
     private static String urlInstance = null;
     private static String jobId = null;
 
     //Parámetros de estado del Pooling
-    //Consultar cada n segundos (MILLIS_POOLING) y un máximo de M intentos (MAX_POOLING)
+    //Consultar cada n'' (MILLIS_POOLING) y un máximo de M (MAX_POOLING) veces
     //Los valores se obtienen a través de la carga de propiedades
     private static int MAX_POOLING ; //Si
     private static  int MILLIS_POOLING;
@@ -454,10 +453,16 @@ public class Bulkapiv2Application {
      * @throws IOException En caso de error de lectura del fichero
      *
      */
-    private static String leerFicheroDatos(String path, Charset encoding)
-            throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
+    private static String leerFicheroDatos(String path, Charset encoding){
+
+
+        try {
+            byte[] encoded = Files.readAllBytes(Paths.get(path));
+            return new String(encoded, encoding);
+        }catch (Exception e){
+            System.out.println("No se encuentra el fichero:  " + path );
+            return null;
+        }
     }
 
 }

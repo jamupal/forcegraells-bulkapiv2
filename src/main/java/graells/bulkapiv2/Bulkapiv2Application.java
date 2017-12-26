@@ -38,27 +38,26 @@ import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-
 public class Bulkapiv2Application {
 
     private static final Logger log = LoggerFactory.getLogger(Bulkapiv2Application.class);
 
+    //Miembros de la clase, para albergar las propiedades, el token de conexión, la url real y sobretodo
+    //el identificador de Job que se obtendrá al crearlo y que es necesario en todas las peticiones
     private static Properties prop = new Properties();
     private static String token = null;
     private static String urlInstance = null;
     private static String jobId = null;
 
-    //Parámetros de estado del Pooling
-    //Consultar cada n'' (MILLIS_POOLING) y un máximo de M (MAX_POOLING) veces
-    //Los valores se obtienen a través de la carga de propiedades
-    private static int MAX_POOLING ; //Si
-    private static  int MILLIS_POOLING;
-
-
+    /**
+     *
+     * @param args Path al fichero de propiedades
+     * */
     public static void main(String args[]) throws Exception {
 
-        //Lecturas de las propiedasdes del job que se generará
-        leerPropiedades();
+        //Lecturas de las propiedasdes del job que se generar
+
+        leerPropiedades(args);
 
         loginORG();
 
@@ -76,17 +75,25 @@ public class Bulkapiv2Application {
     }
 
     /**
-     * Lectura de las propiedades (src/main/resources/application.properties)
+     * Lectura de las propiedades
      *
      * @throws IOException Fichero no encontrado
      *
      * */
-    private static void leerPropiedades() throws IOException {
-        InputStream input = new FileInputStream("src/main/resources/application.properties");
+    private static void leerPropiedades(String[] args) throws IOException {
+
+        String path = "";
+
+        if (args.length > 0 ) {
+            path = (args[0] == null || args[0].isEmpty()) ? "." : args[0];
+        }else{
+            System.out.println("Error: debe informarse como parámetro el path al fichero de propiedades");
+            System.exit(0);
+        }
+
+        InputStream input = new FileInputStream(path);
         prop.load(input);
 
-        MAX_POOLING = Integer.parseInt(prop.getProperty("MAX_POOLING"));
-        MILLIS_POOLING = Integer.parseInt(prop.getProperty("MILLIS_POOLING"));
     }
 
     /**
@@ -267,6 +274,9 @@ public class Bulkapiv2Application {
         if (jobId == null) {
             throw new Exception("Job id es null");
         }
+
+        Integer MAX_POOLING = Integer.parseInt(prop.getProperty("MAX_POOLING"));
+        Integer MILLIS_POOLING = Integer.parseInt(prop.getProperty("MILLIS_POOLING"));
 
         String estadoJob = obtenerInfoJob().get("state").toString();
         List<String> estadosFinales = Arrays.asList("JobComplete", "Failed");
@@ -453,16 +463,10 @@ public class Bulkapiv2Application {
      * @throws IOException En caso de error de lectura del fichero
      *
      */
-    private static String leerFicheroDatos(String path, Charset encoding){
-
-
-        try {
-            byte[] encoded = Files.readAllBytes(Paths.get(path));
-            return new String(encoded, encoding);
-        }catch (Exception e){
-            System.out.println("No se encuentra el fichero:  " + path );
-            return null;
-        }
+    private static String leerFicheroDatos(String path, Charset encoding)
+            throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, encoding);
     }
 
 }

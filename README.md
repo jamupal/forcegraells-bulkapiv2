@@ -1,13 +1,46 @@
 # README #
 
-Este repositorio implementa un cliente Java sencillo sobre la BULK API v2 de Salesforce, aparecida en Winter '18.
+Este repositorio implementa un cliente Java simpl sobre la BULK API v2 de Salesforce, para probar sus servicios.
 
 Se utiliza para medir su rendimiento y compararlo con v1, en la entrada del blog: https://forcegraells.com/2017/12/23/bulk-api-v2.
 
-## C髆o usarlo ##
+## C贸mo usarlo ##
 
-- Al servicio un proyecto Maven, solo es necesario la ejecuci髇 del POM, que genera un jar.
+- Al servicio un proyecto Maven, solo es necesario la ejecuci贸n del POM, que genera un jar (ya disponible en el directorio target)
 
-- El fichero de propiedades debe modificarse para proporcionar los par醡etros de conexi髇 y situarlo en el directorio /src/main/resources.
+- Para ejecutarlo: ```java -jar bulkapiv2-0.0.1-SNAPSHOT.jar fichero_propiedades```
+
+- El fichero de propiedades debe tener el siguiente formato y contenido:
+
+```
+#Datos para la conexion
+
+USERNAME = username@dominio.com
+PASSWORD = ******
+TOKEN = ******
+LOGIN_URL = https://login/test.salesforce.com
+CLIENT_ID = ******
+CLIENT_SECRET = ******
+API_VERSION = v41.0
+
+#Propiedades para la creaci贸n de Job
+OBJETO_DESTINO = Persona__c
+FORMATO_FICHERO_DATOS = CSV
+OPERACION_BULK = insert
+CARACTER_FINAL_LINEA = CRLF
+SEPARADOR_COLUMNAS = SEMICOLON
+MAX_POOLING = 10
+MILLIS_POOLING = 3000
+
+#Fichero Datos
+PATH_FICHERO_DATOS = Personas1M.csv
+
+```
+
+- Los valores para las propiedades del Job, se encuentran en la documentaci贸n oficial de Salesforce
+
+- La invocaci贸n del proyecto viene determinada por las propiedades que se especifican
+
+- El fichero de propiedades debe modificarse para proporcionar los par谩metros de conexi贸n y situarlo en el directorio /src/main/resources.
 
 Cualquier comentario es bienvenido: esteve.graells@gmail.com

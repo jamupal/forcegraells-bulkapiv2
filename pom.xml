@@ -11,6 +11,22 @@
 	<name>bulkapiv2</name>
 	<description>Ejemplo Bulk API v2</description>
 
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Esteve Graells</name>
+			<email>esteve.graells@gmail.com</email>
+			<organization>Personal</organization>
+			<organizationUrl>http://forcegraells.com</organizationUrl>
+		</developer>
+	</developers>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>

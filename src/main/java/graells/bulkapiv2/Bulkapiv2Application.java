@@ -30,11 +30,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -146,6 +150,7 @@ public class Bulkapiv2Application {
                         "{\"object\":" + "\"" + prop.getProperty("OBJETO_DESTINO") + "\"" + "," +
                         "\"contentType\":" + "\"" + prop.getProperty("FORMATO_FICHERO_DATOS") + "\"" + "," +
                         "\"operation\":" + "\"" + prop.getProperty("OPERACION_BULK") + "\"" + "," +
+                        "\"externalIdFieldName\":" + "\"" + prop.getProperty("EXTERNAL_ID") + "\"" + "," +
                         "\"lineEnding\":" + "\"" + prop.getProperty("CARACTER_FINAL_LINEA") + "\"" + "," +
                         "\"columnDelimiter\":" + "\"" + prop.getProperty("SEPARADOR_COLUMNAS") + "\"" + "," +
                         "\"jobType\":" + "\"Classic\"" +
@@ -155,7 +160,7 @@ public class Bulkapiv2Application {
                         "Content-Type: text/csv\n" +
                         "Content-Disposition: form-data; name=\"content\"; filename=\"content\"\n\n";
 
-        payload += leerFicheroDatos(prop.getProperty("PATH_FICHERO_DATOS"), UTF_8);
+        payload += leerFicheroDatos(prop.getProperty("PATH_FICHERO_DATOS_ENTRADA"), UTF_8);
         payload += "\n--BOUNDARY--";
 
         StringEntity requestEntity = new StringEntity(payload, ContentType.APPLICATION_JSON);
@@ -190,6 +195,7 @@ public class Bulkapiv2Application {
                 "{\"object\":" + "\"" + prop.getProperty("OBJETO_DESTINO") + "\"" + "," +
                         "\"contentType\":" + "\"" + prop.getProperty("FORMATO_FICHERO_DATOS") + "\"" + "," +
                         "\"operation\":" + "\"" + prop.getProperty("OPERACION_BULK") + "\"" + "," +
+                        "\"externalIdFieldName\":" + "\"" + prop.getProperty("EXTERNAL_ID") + "\"" + "," +
                         "\"lineEnding\":" + "\"" + prop.getProperty("CARACTER_FINAL_LINEA") + "\"" + "," +
                         "\"columnDelimiter\":" + "\"" + prop.getProperty("SEPARADOR_COLUMNAS") + "\"" +
                 "}\n";
@@ -441,7 +447,7 @@ public class Bulkapiv2Application {
         req.setHeader("Accept", "application/json");
         req.setHeader("Authorization", "Bearer " + token);
 
-        String payload = leerFicheroDatos(prop.getProperty("PATH_FICHERO_DATOS"), UTF_8);
+        String payload = leerFicheroDatos(prop.getProperty("PATH_FICHERO_DATOS_ENTRADA"), UTF_8);
 
         StringEntity requestEntity = new StringEntity(payload, ContentType.TEXT_PLAIN);
         req.setEntity(requestEntity);
@@ -449,7 +455,12 @@ public class Bulkapiv2Application {
         HttpResponse response = client.execute(req);
 
         log.info("Resultado del envio de datos: " + response.getStatusLine().toString());
-
+//String casa = response.getStatusLine().toString();
+        int status = response.getStatusLine().getStatusCode();
+        if(status == 201 || status == 200) {
+        	changeFolder();
+        }
+        
         return response.getStatusLine().toString();
     }
 
@@ -468,5 +479,16 @@ public class Bulkapiv2Application {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
     }
+    
+    public static void changeFolder() {
+		Path inputFolder = FileSystems.getDefault().getPath(prop.getProperty("PATH_FICHERO_DATOS_ENTRADA"));
+        Path ouputFolder = FileSystems.getDefault().getPath(prop.getProperty("PATH_FICHERO_DATOS_SALIDA"));
+        
+        try {
+            Files.move(inputFolder, ouputFolder, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+	}
 
 }

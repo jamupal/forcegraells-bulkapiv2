@@ -30,14 +30,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import utils.ManageFile;
 
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -70,9 +68,9 @@ public class Bulkapiv2Application {
             enviarDatos();
 
             abortarCerrarJob( "CERRAR");
-
+            
             log.info("Estado final del Job: " + poolingJobInfoHastaEstadoFinal());
-
+            failedResults();
             log.info("Resultado finales del job: " + obtenerInfoJob().toString());
             //Podría ser más detallado, este log, verdad? TODO par el lector
         }
@@ -322,7 +320,7 @@ public class Bulkapiv2Application {
         //Petición GET sin parámetros ni Body
         HttpClient client = HttpClientBuilder.create().build();
         HttpPatch req = new HttpPatch(urlInstance + "/services/data/" + prop.getProperty("API_VERSION") + "/jobs/ingest/" + jobId);
-
+        System.out.println(req);
         //Cabeceras
         req.setHeader("Accept", "application/json");
         req.setHeader("Content-Type", "application/json; charset=UTF-8");
@@ -347,6 +345,39 @@ public class Bulkapiv2Application {
         String respuesta = IOUtils.toString(response.getEntity().getContent());
         log.info("Resultado de cierre/abortar q: " + respuesta);
     }
+    
+    /**
+     * Llamada PATCH sobre la url /services/data/vXX.X/jobs/ingest/jobID/failedResults para consultar los resultados fallidos
+     * para luego guardar el resultado en un archivo
+     *
+     * 
+     * @throws Exception Si no se recibe id
+     *
+     */
+    private static void failedResults() throws Exception {
+
+        
+    	if (jobId== null) {
+            throw new Exception("Id del Job es null");
+        }
+
+        //Petición GET sin parámetros ni Body
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet req = new HttpGet(urlInstance + "/services/data/" + prop.getProperty("API_VERSION") + "/jobs/ingest/"+ jobId +"/failedResults/");
+
+        //Cabeceras
+        req.setHeader("Accept", "application/json");
+        req.setHeader("Content-Type", "application/json; charset=UTF-8");
+        req.setHeader("Authorization", "Bearer " + token);
+
+        HttpResponse response = client.execute(req);
+        
+        String respuesta = IOUtils.toString(response.getEntity().getContent());
+        String ruta = prop.getProperty("PATH_FAILED_RESULT") + jobId+".log";
+        ManageFile.writeFile(respuesta, ruta);
+    }
+    
+    
 
     /**
      * Llamada DELETE sobre la url /services/data/vXX.X/jobs/ingest/jobID para eliminar el job
@@ -455,10 +486,11 @@ public class Bulkapiv2Application {
         HttpResponse response = client.execute(req);
 
         log.info("Resultado del envio de datos: " + response.getStatusLine().toString());
-//String casa = response.getStatusLine().toString();
         int status = response.getStatusLine().getStatusCode();
+        String folder_int= prop.getProperty("PATH_FICHERO_DATOS_ENTRADA");
+        String folder_out = prop.getProperty("PATH_FICHERO_DATOS_SALIDA");
         if(status == 201 || status == 200) {
-        	changeFolder();
+        	ManageFile.changeFolder(folder_int, folder_out);
         }
         
         return response.getStatusLine().toString();
@@ -480,15 +512,4 @@ public class Bulkapiv2Application {
         return new String(encoded, encoding);
     }
     
-    public static void changeFolder() {
-		Path inputFolder = FileSystems.getDefault().getPath(prop.getProperty("PATH_FICHERO_DATOS_ENTRADA"));
-        Path ouputFolder = FileSystems.getDefault().getPath(prop.getProperty("PATH_FICHERO_DATOS_SALIDA"));
-        
-        try {
-            Files.move(inputFolder, ouputFolder, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            System.err.println(e);
-        }
-	}
-
 }

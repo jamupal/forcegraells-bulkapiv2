@@ -262,7 +262,7 @@ public class Bulkapiv2Application {
         if (!respuesta.contains("error") && !respuesta.contains("Error")) {
             respuestaJson = new JSONObject(respuesta);
         }
-
+        
         return respuestaJson;
     }
 
@@ -296,6 +296,12 @@ public class Bulkapiv2Application {
                 System.out.println(e);
             }
             estadoJob = obtenerInfoJob().get("state").toString();
+        }
+        
+        String folder_int= prop.getProperty("PATH_FICHERO_DATOS_ENTRADA");
+        String folder_out = prop.getProperty("PATH_FICHERO_DATOS_SALIDA");
+        if(estadoJob.equals("JobComplete")) {
+        	ManageFile.changeFolder(folder_int, folder_out);
         }
 
         if ( poolCounting == MAX_POOLING ) return "Timeout de espera";
@@ -363,7 +369,7 @@ public class Bulkapiv2Application {
 
         //Petición GET sin parámetros ni Body
         HttpClient client = HttpClientBuilder.create().build();
-        HttpGet req = new HttpGet(urlInstance + "/services/data/" + prop.getProperty("API_VERSION") + "/jobs/ingest/"+ jobId +"/failedResults/");
+        HttpGet req = new HttpGet(urlInstance + "/services/data/" + prop.getProperty("API_VERSION") + "/jobs/ingest/"+jobId+"/failedResults/");
 
         //Cabeceras
         req.setHeader("Accept", "application/json");
@@ -486,12 +492,6 @@ public class Bulkapiv2Application {
         HttpResponse response = client.execute(req);
 
         log.info("Resultado del envio de datos: " + response.getStatusLine().toString());
-        int status = response.getStatusLine().getStatusCode();
-        String folder_int= prop.getProperty("PATH_FICHERO_DATOS_ENTRADA");
-        String folder_out = prop.getProperty("PATH_FICHERO_DATOS_SALIDA");
-        if(status == 201 || status == 200) {
-        	ManageFile.changeFolder(folder_int, folder_out);
-        }
         
         return response.getStatusLine().toString();
     }

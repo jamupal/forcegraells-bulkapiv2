@@ -130,46 +130,50 @@ public class Bulkapiv2Application {
      * @return Devuelve el identificador el Job creado o null
      * @throws Exception Lectura de fichero errónea
      */
-    private static String crearJobMultipart() throws Exception {
-
-        HttpPost peticionPost = new HttpPost(urlInstance + "/services/data/" + prop.getProperty("API_VERSION") + "/jobs/ingest");
-
-        //Cabeceras: siguiendo lo indicado en la documentación
-        peticionPost.setHeader("Content-Type", "multipart/form-data; boundary=BOUNDARY");
-        peticionPost.setHeader("Accept", "application/json");
-        peticionPost.setHeader("Authorization", "Bearer " + token);
-
-        //Body: siguiendo especificación del documento. Formado por varios BOUNDARIES
-        String payload =
-                "--BOUNDARY\n" +
-                        "Content-Type: application/json\n" +
-                        "Content-Disposition: form-data; name=\"job\"\n\n" +
-
-                        "{\"object\":" + "\"" + prop.getProperty("OBJETO_DESTINO") + "\"" + "," +
-                        "\"contentType\":" + "\"" + prop.getProperty("FORMATO_FICHERO_DATOS") + "\"" + "," +
-                        "\"operation\":" + "\"" + prop.getProperty("OPERACION_BULK") + "\"" + "," +
-                        "\"externalIdFieldName\":" + "\"" + prop.getProperty("EXTERNAL_ID") + "\"" + "," +
-                        "\"lineEnding\":" + "\"" + prop.getProperty("CARACTER_FINAL_LINEA") + "\"" + "," +
-                        "\"columnDelimiter\":" + "\"" + prop.getProperty("SEPARADOR_COLUMNAS") + "\"" + "," +
-                        "\"jobType\":" + "\"Classic\"" +
-                        "}\n" +
-                        "\n--BOUNDARY\n" +
-
-                        "Content-Type: text/csv\n" +
-                        "Content-Disposition: form-data; name=\"content\"; filename=\"content\"\n\n";
-
-        payload += leerFicheroDatos(prop.getProperty("PATH_FICHERO_DATOS_ENTRADA"), UTF_8);
-        payload += "\n--BOUNDARY--";
-
-        StringEntity requestEntity = new StringEntity(payload, ContentType.APPLICATION_JSON);
-        peticionPost.setEntity(requestEntity);
-
-        String jobId = enviarPeticionPost(peticionPost);
-
-        log.info("El id del job creado es:" + jobId);
-
-        return jobId;
-    }
+//    private static String crearJobMultipart() throws Exception {
+//    	try {
+//        HttpPost peticionPost = new HttpPost(urlInstance + "/services/data/" + prop.getProperty("API_VERSION") + "/jobs/ingest");
+//
+//        //Cabeceras: siguiendo lo indicado en la documentación
+//        peticionPost.setHeader("Content-Type", "multipart/form-data; boundary=BOUNDARY");
+//        peticionPost.setHeader("Accept", "application/json");
+//        peticionPost.setHeader("Authorization", "Bearer " + token);
+//
+//        //Body: siguiendo especificación del documento. Formado por varios BOUNDARIES
+//        String payload =
+//                "--BOUNDARY\n" +
+//                        "Content-Type: application/json\n" +
+//                        "Content-Disposition: form-data; name=\"job\"\n\n" +
+//
+//                        "{\"object\":" + "\"" + prop.getProperty("OBJETO_DESTINO") + "\"" + "," +
+//                        "\"contentType\":" + "\"" + prop.getProperty("FORMATO_FICHERO_DATOS") + "\"" + "," +
+//                        "\"operation\":" + "\"" + prop.getProperty("OPERACION_BULK") + "\"" + "," +
+//                        "\"externalIdFieldName\":" + "\"" + prop.getProperty("EXTERNAL_ID") + "\"" + "," +
+//                        "\"lineEnding\":" + "\"" + prop.getProperty("CARACTER_FINAL_LINEA") + "\"" + "," +
+//                        "\"columnDelimiter\":" + "\"" + prop.getProperty("SEPARADOR_COLUMNAS") + "\"" + "," +
+//                        "\"jobType\":" + "\"Classic\"" +
+//                        "}\n" +
+//                        "\n--BOUNDARY\n" +
+//
+//                        "Content-Type: text/csv\n" +
+//                        "Content-Disposition: form-data; name=\"content\"; filename=\"content\"\n\n";
+//
+//        payload += leerFicheroDatos(prop.getProperty("PATH_FICHERO_DATOS_ENTRADA"), UTF_8);
+//        payload += "\n--BOUNDARY--";
+//
+//        StringEntity requestEntity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+//        peticionPost.setEntity(requestEntity);
+//
+//        String jobId = enviarPeticionPost(peticionPost);
+//
+//        log.info("El id del job creado es:" + jobId);
+//
+//        
+//    	}catch (Exception e) {
+//    		e.printStackTrace();
+//		}
+//    	return jobId;
+//    }
 
     /**
      * Post a URL /services/data/vXX.X/jobs/ingest para crear un nuevo job, con las cabeceras que indica el documento
@@ -187,13 +191,16 @@ public class Bulkapiv2Application {
         peticionPost.setHeader("Content-Type", "application/json;");
         peticionPost.setHeader("Accept", "application/json");
         peticionPost.setHeader("Authorization", "Bearer " + token);
-
+        
+        String externalIdFieldName = prop.getProperty("EXTERNAL_ID");
+        if(!externalIdFieldName.equals("")){
+        	externalIdFieldName = "\"externalIdFieldName\":" + "\"" + prop.getProperty("EXTERNAL_ID") + "\"" + ",";
+        }
         //Body: los saltos de lineas son fundamentales.
         String payload =
                 "{\"object\":" + "\"" + prop.getProperty("OBJETO_DESTINO") + "\"" + "," +
                         "\"contentType\":" + "\"" + prop.getProperty("FORMATO_FICHERO_DATOS") + "\"" + "," +
-                        "\"operation\":" + "\"" + prop.getProperty("OPERACION_BULK") + "\"" + "," +
-                        "\"externalIdFieldName\":" + "\"" + prop.getProperty("EXTERNAL_ID") + "\"" + "," +
+                        "\"operation\":" + "\"" + prop.getProperty("OPERACION_BULK") + "\"" + "," + externalIdFieldName +
                         "\"lineEnding\":" + "\"" + prop.getProperty("CARACTER_FINAL_LINEA") + "\"" + "," +
                         "\"columnDelimiter\":" + "\"" + prop.getProperty("SEPARADOR_COLUMNAS") + "\"" +
                 "}\n";

@@ -8,6 +8,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ManageFile {
 
@@ -46,6 +48,11 @@ public class ManageFile {
 	     */
 	    
 	    public static void changeFolder(String folder_int, String folder_out) {
+	    	File fold_int = new File(folder_int);
+	    	String name = fold_int.getName().replace(".csv", "");
+	    	DateTimeFormatter time = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss");
+	    	name = name.concat(time.format(LocalDateTime.now())).concat(".csv");
+	    	folder_out = folder_out.concat(name);
 			Path inputFolder = FileSystems.getDefault().getPath(folder_int);
 	        Path ouputFolder = FileSystems.getDefault().getPath(folder_out);
 	        

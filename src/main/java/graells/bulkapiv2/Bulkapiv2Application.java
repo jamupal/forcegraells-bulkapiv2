@@ -387,7 +387,7 @@ public class Bulkapiv2Application {
         
         String respuesta = IOUtils.toString(response.getEntity().getContent());
         String ruta = prop.getProperty("PATH_FAILED_RESULT") + jobId+".log";
-        ManageFile.writeFile(respuesta, ruta);
+        ManageFile.writeFile(respuesta, ruta, jobId);
     }
     
     

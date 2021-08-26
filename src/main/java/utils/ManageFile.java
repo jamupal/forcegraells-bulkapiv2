@@ -25,13 +25,17 @@ public class ManageFile {
 	 * 
 	 */
 	
-	 public static void writeFile(String respuesta, String ruta) {
+	 public static void writeFile(String respuesta, String ruta, String jobId) {
     	 try {
-                 
+    		 
+    		 DateTimeFormatter time = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+             String complement = "{" +time.format(LocalDateTime.now())+ "}" + " jobid: "+ jobId + " response: "; 
+             respuesta = complement.concat(respuesta);
              File file = new File(ruta);
              if (!file.exists()) {
                  file.createNewFile();
              }
+             
              FileWriter fw = new FileWriter(file);
              BufferedWriter bw = new BufferedWriter(fw);
              bw.write(respuesta);
@@ -53,6 +57,7 @@ public class ManageFile {
 	    	DateTimeFormatter time = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss");
 	    	name = name.concat(time.format(LocalDateTime.now())).concat(".csv");
 	    	folder_out = folder_out.concat(name);
+	    	
 			Path inputFolder = FileSystems.getDefault().getPath(folder_int);
 	        Path ouputFolder = FileSystems.getDefault().getPath(folder_out);
 	        

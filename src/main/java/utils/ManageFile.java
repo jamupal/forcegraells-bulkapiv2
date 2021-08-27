@@ -29,7 +29,7 @@ public class ManageFile {
     	 try {
     		 
     		 DateTimeFormatter time = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-             String complement = "{" +time.format(LocalDateTime.now())+ "}" + " jobid: "+ jobId + " response: "; 
+             String complement = "{" +time.format(LocalDateTime.now())+ "}" + " jobid:"+ jobId + " response: "; 
              respuesta = complement.concat(respuesta);
              File file = new File(ruta);
              if (!file.exists()) {

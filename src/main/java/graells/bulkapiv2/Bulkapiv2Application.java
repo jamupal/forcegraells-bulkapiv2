@@ -192,20 +192,7 @@ public class Bulkapiv2Application {
         peticionPost.setHeader("Accept", "application/json");
         peticionPost.setHeader("Authorization", "Bearer " + token);
         
-        String externalIdFieldName = prop.getProperty("EXTERNAL_ID");
-        if(!externalIdFieldName.equals("")){
-        	externalIdFieldName = "\"externalIdFieldName\":" + "\"" + prop.getProperty("EXTERNAL_ID") + "\"" + ",";
-        }
-        //Body: los saltos de lineas son fundamentales.
-        String payload =
-                "{\"object\":" + "\"" + prop.getProperty("OBJETO_DESTINO") + "\"" + "," +
-                        "\"contentType\":" + "\"" + prop.getProperty("FORMATO_FICHERO_DATOS") + "\"" + "," +
-                        "\"operation\":" + "\"" + prop.getProperty("OPERACION_BULK") + "\"" + "," + externalIdFieldName +
-                        "\"lineEnding\":" + "\"" + prop.getProperty("CARACTER_FINAL_LINEA") + "\"" + "," +
-                        "\"columnDelimiter\":" + "\"" + prop.getProperty("SEPARADOR_COLUMNAS") + "\"" +
-                "}\n";
-
-        StringEntity requestEntity = new StringEntity(payload, ContentType.APPLICATION_JSON);
+        StringEntity requestEntity = new StringEntity(getPayload(), ContentType.APPLICATION_JSON);
         peticionPost.setEntity(requestEntity);
 
         jobId = enviarPeticionPost(peticionPost);
@@ -229,8 +216,15 @@ public class Bulkapiv2Application {
             HttpResponse httpResponse = client.execute(post);
 
             String respuesta = IOUtils.toString(httpResponse.getEntity().getContent());
+            
+            if(respuesta.contains("error")) {
+            	String textLogs = respuesta;
+            	textLogs = textLogs.concat(" Por favor verifique los parametros dentro del archivo .properties");
+            	String ruta = prop.getProperty("PATH_FAILED_RESULT") + "logs.log";
+                ManageFile.writeFile(textLogs, ruta, "");
+            }
+            
             JSONObject jsonObject = new JSONObject(respuesta);
-
             jobId = jsonObject.getString("id");
 
         } catch (Exception e) {
@@ -518,5 +512,55 @@ public class Bulkapiv2Application {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
     }
+    
+    /**
+     * Verifica si los datos obtenidos del archivo properties estan vacios para construir el payload
+     * Si estan vacios no se tiene encuenta para construir el payload
+     * 
+     * @return payload
+     */
+    
+    private static String getPayload() {
+    	String payload;
+    	
+    	String externalIdFieldName = prop.getProperty("EXTERNAL_ID");
+         if(!externalIdFieldName.equals("")){
+         	externalIdFieldName = "\"externalIdFieldName\":" + "\"" + prop.getProperty("EXTERNAL_ID") + "\"" + ",";
+         }
+         
+         String object = prop.getProperty("OBJETO_DESTINO");
+         if(!object.equals("")) {
+        	 object = "\"object\":" + "\"" + prop.getProperty("OBJETO_DESTINO") + "\"" + "," ;
+         }
+         
+         String contentType = prop.getProperty("FORMATO_FICHERO_DATOS");
+         if(!contentType.equals("")) {
+        	 contentType = "\"contentType\":" + "\"" + prop.getProperty("FORMATO_FICHERO_DATOS") + "\"" + ",";
+         }
+         
+         String operation = prop.getProperty("OPERACION_BULK");
+         if(!operation.equals("")) {
+        	 operation = "\"operation\":" + "\"" + prop.getProperty("OPERACION_BULK") + "\"" + ",";
+         }
+         
+         String lineEnding = prop.getProperty("CARACTER_FINAL_LINEA");
+         if(!lineEnding.equals("")) {
+        	 lineEnding = "\"lineEnding\":" + "\"" + prop.getProperty("CARACTER_FINAL_LINEA") + "\"" + ",";
+         }
+         
+         String columnDelimiter = prop.getProperty("SEPARADOR_COLUMNAS");
+         if(!columnDelimiter.equals("")) {
+        	 columnDelimiter = "\"columnDelimiter\":" + "\"" + prop.getProperty("SEPARADOR_COLUMNAS") + "\"";
+         }
+         
+         
+         //Body: los saltos de lineas son fundamentales.
+          payload =
+                 "{"+object + contentType + operation + externalIdFieldName +
+                 	lineEnding + columnDelimiter + "}\n";
+    	
+    	return payload;
+    }
+    
     
 }

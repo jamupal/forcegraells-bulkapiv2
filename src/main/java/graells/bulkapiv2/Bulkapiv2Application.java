@@ -262,6 +262,9 @@ public class Bulkapiv2Application {
 
         if (!respuesta.contains("error") && !respuesta.contains("Error")) {
             respuestaJson = new JSONObject(respuesta);
+        }else {
+        	String ruta = prop.getProperty("PATH_FAILED_RESULT") +jobId+ ".log";
+            ManageFile.writeFile(respuesta, ruta, jobId);
         }
         
         return respuestaJson;

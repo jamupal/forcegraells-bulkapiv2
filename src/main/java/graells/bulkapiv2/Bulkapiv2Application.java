@@ -70,7 +70,6 @@ public class Bulkapiv2Application {
             abortarCerrarJob( "CERRAR");
             
             log.info("Estado final del Job: " + poolingJobInfoHastaEstadoFinal());
-            //Thread.sleep(90000);
             failedResults();
             log.info("Resultado finales del job: " + obtenerInfoJob().toString());
             

@@ -66,12 +66,14 @@ public class Bulkapiv2Application {
         if (crearJobSimple()) {
 
             enviarDatos();
-
+            
             abortarCerrarJob( "CERRAR");
             
             log.info("Estado final del Job: " + poolingJobInfoHastaEstadoFinal());
+            Thread.sleep(90000);
             failedResults();
             log.info("Resultado finales del job: " + obtenerInfoJob().toString());
+            
             //Podría ser más detallado, este log, verdad? TODO par el lector
         }
     }
@@ -302,12 +304,6 @@ public class Bulkapiv2Application {
             estadoJob = obtenerInfoJob().get("state").toString();
         }
         
-        String folder_int= prop.getProperty("PATH_FICHERO_DATOS_ENTRADA");
-        String folder_out = prop.getProperty("PATH_FICHERO_DATOS_SALIDA");
-        if(estadoJob.equals("JobComplete")) {
-        	ManageFile.changeFolder(folder_int, folder_out);
-        }
-
         if ( poolCounting == MAX_POOLING ) return "Timeout de espera";
 
         return estadoJob;
@@ -381,10 +377,16 @@ public class Bulkapiv2Application {
         req.setHeader("Authorization", "Bearer " + token);
 
         HttpResponse response = client.execute(req);
-        
+        System.out.println(response);
         String respuesta = IOUtils.toString(response.getEntity().getContent());
         String ruta = prop.getProperty("PATH_FAILED_RESULT") + jobId+".log";
         ManageFile.writeFile(respuesta, ruta, jobId);
+        
+        //mueve archivo,carpeta salida
+        String folder_int= prop.getProperty("PATH_FICHERO_DATOS_ENTRADA");
+        String folder_out = prop.getProperty("PATH_FICHERO_DATOS_SALIDA");
+        ManageFile.changeFolder(folder_int, folder_out);
+        
     }
     
     

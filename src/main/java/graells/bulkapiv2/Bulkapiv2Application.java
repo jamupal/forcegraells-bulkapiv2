@@ -70,7 +70,7 @@ public class Bulkapiv2Application {
             abortarCerrarJob( "CERRAR");
             
             log.info("Estado final del Job: " + poolingJobInfoHastaEstadoFinal());
-            Thread.sleep(90000);
+            //Thread.sleep(90000);
             failedResults();
             log.info("Resultado finales del job: " + obtenerInfoJob().toString());
             
@@ -362,31 +362,33 @@ public class Bulkapiv2Application {
      */
     private static void failedResults() throws Exception {
 
-        
     	if (jobId== null) {
             throw new Exception("Id del Job es null");
         }
+    	try {
 
-        //Petición GET sin parámetros ni Body
-        HttpClient client = HttpClientBuilder.create().build();
-        HttpGet req = new HttpGet(urlInstance + "/services/data/" + prop.getProperty("API_VERSION") + "/jobs/ingest/"+jobId+"/failedResults/");
+        	//Petición GET sin parámetros ni Body
+        	HttpClient client = HttpClientBuilder.create().build();
+        	HttpGet req = new HttpGet(urlInstance + "/services/data/" + prop.getProperty("API_VERSION") + "/jobs/ingest/"+jobId+"/failedResults/");
 
-        //Cabeceras
-        req.setHeader("Accept", "application/json");
-        req.setHeader("Content-Type", "application/json; charset=UTF-8");
-        req.setHeader("Authorization", "Bearer " + token);
+        	//Cabeceras
+        	req.setHeader("Accept", "application/json");
+        	req.setHeader("Content-Type", "application/json; charset=UTF-8");
+        	req.setHeader("Authorization", "Bearer " + token);
 
-        HttpResponse response = client.execute(req);
-        System.out.println(response);
-        String respuesta = IOUtils.toString(response.getEntity().getContent());
-        String ruta = prop.getProperty("PATH_FAILED_RESULT") + jobId+".log";
-        ManageFile.writeFile(respuesta, ruta, jobId);
+        	HttpResponse response = client.execute(req);
+        	System.out.println(response);
+        	String respuesta = IOUtils.toString(response.getEntity().getContent());
+        	String ruta = prop.getProperty("PATH_FAILED_RESULT") + jobId+".log";
+        	ManageFile.writeFile(respuesta, ruta, jobId);
         
-        //mueve archivo,carpeta salida
-        String folder_int= prop.getProperty("PATH_FICHERO_DATOS_ENTRADA");
-        String folder_out = prop.getProperty("PATH_FICHERO_DATOS_SALIDA");
-        ManageFile.changeFolder(folder_int, folder_out);
-        
+        	//mueve archivo,carpeta salida
+        	String folder_int= prop.getProperty("PATH_FICHERO_DATOS_ENTRADA");
+        	String folder_out = prop.getProperty("PATH_FICHERO_DATOS_SALIDA");
+        	ManageFile.changeFolder(folder_int, folder_out);
+    	}catch (Exception e) {
+    		failedResults();
+    	}
     }
     
     

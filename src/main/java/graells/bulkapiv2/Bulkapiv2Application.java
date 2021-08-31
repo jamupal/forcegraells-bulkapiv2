@@ -304,6 +304,10 @@ public class Bulkapiv2Application {
             estadoJob = obtenerInfoJob().get("state").toString();
         }
         
+        if(estadosFinales.contains(estadoJob)) {
+        	
+        }
+        
         if ( poolCounting == MAX_POOLING ) return "Timeout de espera";
 
         return estadoJob;

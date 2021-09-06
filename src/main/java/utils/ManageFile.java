@@ -22,6 +22,7 @@ public class ManageFile {
 	 * 
 	 * @param respuesta (Devuelve los resultados fallidos)
 	 * @param ruta (ruta donde va a quedar guardado el archivo
+	 * @param jobId(idjob, para nombrar el archivo
 	 * 
 	 */
 	
